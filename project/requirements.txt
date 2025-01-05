@@ -1,0 +1,6 @@
+
+seaborn==0.12.2
+yfinance==0.2.31  # Yahoo Finance API
+
+python-dotenv==1.0.0  # For API keys
+requests==2.31.0
