@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import json
+from pandas import json_normalize
 from .ml.esg_scorer import ESGScorer
 from .ml.risk_analyzer import RiskAnalyzer
 from .ml.portfolio_optimizer import PortfolioOptimizer
@@ -61,3 +63,40 @@ class ProjectEvaluator:
             'env_risk': risk_metrics['env_risk'],
             'fin_risk': risk_metrics['fin_risk']
         }
+
+    def get_data(self):
+        """Returns the data stored in the evaluator."""
+        return self.data
+
+    def save_data_to_csv(self, file_path):
+        """Saves the data to a CSV file."""
+        if self.data is not None:
+            self.data.to_csv(file_path, index=False)
+            return f"Data saved to {file_path}"
+        else:
+            return "No data available to save."
+
+    def set_data_from_json(self, file_path):
+        """Sets the data from a JSON file."""
+        try:
+            # Load data from JSON file
+            with open(file_path, 'r') as file:
+                json_data = json.load(file)
+            
+            # Log the raw JSON data for inspection
+            print("Raw JSON data loaded:", json_data)
+
+            # Handle cases where JSON is a list of dictionaries
+            if isinstance(json_data, list) and isinstance(json_data[0], dict):
+                # Convert JSON data to DataFrame
+                self.data = pd.DataFrame(json_data)
+                return f"Data loaded from {file_path}"
+
+            # Handle nested JSON (try flattening it)
+            print("Attempting to normalize JSON structure...")
+            normalized_data = json_normalize(json_data)
+            self.data = normalized_data
+            return f"Data loaded and normalized from {file_path}"
+
+        except Exception as e:
+            return f"Error loading data from JSON: {str(e)}"
